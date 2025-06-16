@@ -1,5 +1,5 @@
 streamlit
 pandas
 matplotlib
-tensorflow
 numpy
+tensorflow==2.11.0
