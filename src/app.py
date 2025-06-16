@@ -1,55 +1,51 @@
 import streamlit as st
-import pandas as pd
 import matplotlib.pyplot as plt
 from fetch_nutrition import load_nutrition_data, get_nutrition
 
-# ✅ Must be first Streamlit command
-st.set_page_config(page_title="🍽️ NutriPlate - Indian Food Nutrition Estimator")
-
-st.title("🍽️ NutriPlate - Indian Food Nutrition Estimator")
-st.markdown("### Select the food items on your plate with quantity (servings or grams):")
-
-# Load dataset
+# Load data
 df = load_nutrition_data()
 
-# Get user-selected foods
-selected_items = st.multiselect("Select the food items on your plate:", df["Food"].tolist())
+# Strip whitespace from column names
+df.columns = df.columns.str.strip()
 
-# Ask quantity for each selected food
+# App title
+st.title("🍽️ NutriPlate - Indian Food Nutrition Estimator")
+
+st.markdown("Select the food items on your plate with quantity (servings or grams):")
+
+# List of food items
+food_items = df['Food'].tolist()
+
+# User input
 selected_quantities = {}
-for item in selected_items:
-    qty = st.number_input(f"Enter quantity for {item} (servings):", min_value=0.0, step=0.5)
-    if qty > 0:
-        selected_quantities[item] = qty
+for food in food_items:
+    if st.checkbox(food):
+        qty = st.number_input(f"Enter quantity for {food} (servings):", min_value=0.0, step=0.5, value=1.0)
+        selected_quantities[food] = qty
 
-# Show nutrition breakdown
+# If user has selected items
 if selected_quantities:
     st.subheader("🔍 Nutrition Breakdown")
+    try:
+        result_df, totals = get_nutrition(selected_quantities, df)
+        st.dataframe(result_df)
 
-    result_df, totals = get_nutrition(selected_quantities, df)
+        # Display total nutrition
+        st.markdown(f"**Total Calories:** {totals['Calories_kcal']:.1f} kcal")
+        st.markdown(f"**Total Protein:** {totals['Protein_g']:.1f} g")
+        st.markdown(f"**Total Fat:** {totals['Fat_g']:.1f} g")
+        st.markdown(f"**Total Carbs:** {totals['Carbs_g']:.1f} g")
 
-    for _, row in result_df.iterrows():
-        qty = selected_quantities[row["Food"]]
-        st.markdown(
-            f"**{row['Food']} × {qty}**  \n"
-            f"Calories: {row['Calories_kcal'] * qty:.1f} kcal | "
-            f"Protein: {row['Protein_g'] * qty:.1f} g | "
-            f"Fat: {row['Fat_g'] * qty:.1f} g | "
-            f"Carbs: {row['Carbs_g'] * qty:.1f} g"
-        )
+        # Pie chart
+        labels = ['Protein', 'Fat', 'Carbs']
+        values = [totals['Protein_g'], totals['Fat_g'], totals['Carbs_g']]
+        fig, ax = plt.subplots()
+        ax.pie(values, labels=labels, autopct='%1.1f%%')
+        ax.set_title("Macronutrient Composition")
+        st.pyplot(fig)
 
-    # 📊 Pie chart
-    st.subheader("📊 Calorie Contribution by Food")
-    fig, ax = plt.subplots()
-    labels = result_df["Food"]
-    sizes = [row['Calories_kcal'] * selected_quantities[row['Food']] for _, row in result_df.iterrows()]
-    ax.pie(sizes, labels=labels, autopct="%1.1f%%", startangle=90)
-    ax.axis("equal")
-    st.pyplot(fig)
+    except Exception as e:
+        st.error(f"Something went wrong during nutrition calculation: {e}")
 
-    # 🧾 Total Nutrition
-    st.subheader("🧾 Total Nutrition")
-    st.markdown(f"**Calories:** {totals['Calories_kcal']:.1f} kcal")
-    st.markdown(f"**Protein:** {totals['Protein_g']:.1f} g")
-    st.markdown(f"**Fat:** {totals['Fat_g']:.1f} g")
-    st.markdown(f"**Carbs:** {totals['Carbs_g']:.1f} g")
+else:
+    st.info("Please select at least one food item.")
