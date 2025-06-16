@@ -1,7 +1,10 @@
 import pandas as pd
 
-def load_nutrition_data(csv_path="data/indian_foods.csv"):
+import os
+
+def load_nutrition_data(csv_path=os.path.join(os.path.dirname(__file__), "data", "indian_foods.csv")):
     return pd.read_csv(csv_path)
+
 
 def get_nutrition(selected_quantities, df):
     result_rows = []
