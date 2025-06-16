@@ -19,4 +19,4 @@ Run the app locally with:
 
 ```bash
 streamlit run src/app.py
-Updated README with project description
+
