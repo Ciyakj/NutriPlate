@@ -1,21 +1,21 @@
-# NutriPlate 🍽️
+# 🍽️ NutriPlate - Indian Food Nutrition Estimator
 
-NutriPlate is an AI-powered digital nutrition plate that helps users estimate calories and macronutrients in a meal—starting with Indian food!
+**NutriPlate** is a Streamlit web app that helps users estimate the nutritional values of their Indian food plates by selecting food items and their respective quantities.
 
----
+## 🔍 Features
 
-## 🚀 Features
+- Choose common Indian food items (like Dosa, Idli, Sambar, etc.)
+- Input quantities (in servings or grams)
+- View detailed nutritional breakdown:
+  - Calories
+  - Protein
+  - Fat
+  - Carbohydrates
+- Visualize calorie contribution with pie chart
 
-- Select food items from a preset list
-- View calories, protein, fats, and carbs
-- Built with Streamlit for interactivity
-- Easily extendable with image recognition (YOLO, CNN)
+## 📊 Demo
 
----
-
-## 📦 Installation
+Run the app locally with:
 
 ```bash
-git clone https://github.com/yourname/NutriPlate.git
-cd NutriPlate
-pip install -r requirements.txt
+streamlit run src/app.py
